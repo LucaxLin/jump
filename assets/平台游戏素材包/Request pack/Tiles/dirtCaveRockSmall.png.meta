@@ -1,0 +1,134 @@
+{
+  "ver": "1.0.27",
+  "importer": "image",
+  "imported": true,
+  "uuid": "f8775fe9-fff3-4851-a9b5-73ba2e3bc183",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "f8775fe9-fff3-4851-a9b5-73ba2e3bc183@6c48a",
+      "displayName": "dirtCaveRockSmall",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "imageUuidOrDatabaseUri": "f8775fe9-fff3-4851-a9b5-73ba2e3bc183",
+        "isUuid": true,
+        "visible": false,
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "f8775fe9-fff3-4851-a9b5-73ba2e3bc183@f9941",
+      "displayName": "dirtCaveRockSmall",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": -0.5,
+        "offsetY": -0.5,
+        "trimX": 20,
+        "trimY": 20,
+        "width": 29,
+        "height": 31,
+        "rawWidth": 70,
+        "rawHeight": 70,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [
+            -14.5,
+            -15.5,
+            0,
+            14.5,
+            -15.5,
+            0,
+            -14.5,
+            15.5,
+            0,
+            14.5,
+            15.5,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            20,
+            50,
+            49,
+            50,
+            20,
+            19,
+            49,
+            19
+          ],
+          "nuv": [
+            0.2857142857142857,
+            0.2714285714285714,
+            0.7,
+            0.2714285714285714,
+            0.2857142857142857,
+            0.7142857142857143,
+            0.7,
+            0.7142857142857143
+          ],
+          "minPos": [
+            -14.5,
+            -15.5,
+            0
+          ],
+          "maxPos": [
+            14.5,
+            15.5,
+            0
+          ]
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "f8775fe9-fff3-4851-a9b5-73ba2e3bc183@6c48a",
+        "atlasUuid": "",
+        "trimType": "auto"
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "sprite-frame",
+    "hasAlpha": true,
+    "fixAlphaTransparencyArtifacts": false,
+    "redirect": "f8775fe9-fff3-4851-a9b5-73ba2e3bc183@6c48a"
+  }
+}
