@@ -7,12 +7,10 @@ import {
   EventKeyboard,
   Input,
   input,
-  PhysicsSystem2D,
   RigidBody2D,
   Vec2,
   Vec3
 } from 'cc'
-import { PHYSICS_GROUP } from './constant'
 const { ccclass, property } = _decorator
 
 @ccclass('PlayerControll')
