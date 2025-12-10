@@ -7,12 +7,15 @@ import {
   EventKeyboard,
   Input,
   input,
+  PhysicsGroup,
+  PhysicsGroup2D,
   RigidBody2D,
   Vec2,
   Vec3
 } from 'cc'
 const { ccclass, property } = _decorator
-
+import { PHYSICS_GROUP } from './constant'
+import { Trap } from './Trap'
 @ccclass('PlayerControll')
 export class PlayerControll extends Component {
   @property({ tooltip: '移动速度' })
@@ -23,7 +26,6 @@ export class PlayerControll extends Component {
   jumpSpeed: number = 180
   @property({ tooltip: '跳跃冷却时间（秒）' })
   jumpCD: number = 0.1
-
   private isGrounded: boolean = true // 是否在地面上
   private isJumpEndTriggered: boolean = false // 防抖标记
   private tempVec2: Vec2 = new Vec2(0, 0)
@@ -34,7 +36,8 @@ export class PlayerControll extends Component {
   private collider: Collider2D = null! // 碰撞组件
   private curMoveThreshold: number = 0.001 // 当前移动阈值
   private curMoveDir: number = 0 // 当前移动方向：-1=左，0=静止，1=右
-
+  private allowMove: boolean = true // 是否允许移动
+  private isHurt: boolean = false // 受伤状态标记
   onLoad() {
     this.animation = this.getComponent(Animation)
     this.rigidBody = this.getComponent(RigidBody2D)
@@ -69,6 +72,7 @@ export class PlayerControll extends Component {
    * 键盘抬起：重置移动方向（仅当对应按键抬起时）
    */
   private onKeyUp(event: EventKeyboard) {
+    this.allowMove = true
     switch (event.keyCode) {
       case 37: // 左
         if (this.curMoveDir === -1) this.curMoveDir = -this.curMoveThreshold
@@ -99,14 +103,42 @@ export class PlayerControll extends Component {
   }
   // 碰撞进入地面（跳跃结束）
   onCollisionEnter2D(player: Collider2D, other: Collider2D) {
-    if (other.node.name === 'floorBlock' && !this.isJumpEndTriggered) {
+    if (other.node.name === 'door') {
+      this.allowMove = false
+    }
+    if (other.tag === PHYSICS_GROUP.ground && !this.isJumpEndTriggered) {
       this.isGrounded = true // 标记为在地面上
+      this.isHurt = false
       this.isJumpEndTriggered = true
       // 0.1秒后重置防抖（避免连续碰撞重复触发）
       setTimeout(() => {
         this.isJumpEndTriggered = false
       }, 100)
+    } else if (other.tag === PHYSICS_GROUP.trap) {
+      this.handleHitTrap(other.node.getComponent(Trap)!)
     }
+  }
+  handleHitTrap(trapComponent: Trap) {
+    this.isHurt = true
+    // 受伤往后弹跳
+    // 清除当前速度
+    this.rigidBody.linearVelocity = new Vec2(0, 0)
+    this.rigidBody.angularVelocity = 0
+    
+    // 陷阱碰撞器禁用0.1秒
+    trapComponent.getComponent(Collider2D)!.enabled = false
+    setTimeout(() => {
+    trapComponent.getComponent(Collider2D)!.enabled = true
+        
+    }, 100);
+    // 施加冲量
+    // this.rigidBody.linearVelocity = trapComponent.force
+    this.rigidBody.applyLinearImpulse(
+      trapComponent.force,
+      this.rigidBody.getWorldCenter(this.tempVec2),
+      true
+    )
+    console.log(`linearVelocity`, this.rigidBody.linearVelocity)
   }
 
   /**
@@ -139,7 +171,12 @@ export class PlayerControll extends Component {
     this.rigidBody.linearVelocity = velocity
 
     // 2. 切换动画：移动时播跑步，静止播站立
-    if (Math.abs(this.curMoveDir) > this.curMoveThreshold && this.isGrounded) {
+    if (this.isHurt) {
+      this.playAnimation('player_hurt') // 受伤动画
+    } else if (
+      Math.abs(this.curMoveDir) > this.curMoveThreshold &&
+      this.isGrounded
+    ) {
       this.playAnimation('player_walk') // 跑步动画
     } else if (!this.isGrounded) {
       this.playAnimation('player_jump') // 跳跃动画
@@ -152,14 +189,16 @@ export class PlayerControll extends Component {
         : this.isFaceRight
     )
     // 3. 移动玩家
-    if (Math.abs(this.curMoveDir) > this.curMoveThreshold) {
-      this.node.setPosition(
-        this.node.position.add3f(
-          this.curMoveDir * this.moveSpeed * deltaTime,
-          0,
-          0
+    if (!this.isHurt) {
+      if (Math.abs(this.curMoveDir) > this.curMoveThreshold && this.allowMove) {
+        this.node.setPosition(
+          this.node.position.add3f(
+            this.curMoveDir * this.moveSpeed * deltaTime,
+            0,
+            0
+          )
         )
-      )
+      }
     }
   }
   onDestroy() {
