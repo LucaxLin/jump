@@ -26,6 +26,8 @@ export class PlayerControll extends Component {
   jumpSpeed: number = 180
   @property({ tooltip: '跳跃冷却时间（秒）' })
   jumpCD: number = 0.1
+  @property({ tooltip: '自动行走' })
+  autoMove: boolean = false
   private isGrounded: boolean = true // 是否在地面上
   private isJumpEndTriggered: boolean = false // 防抖标记
   private tempVec2: Vec2 = new Vec2(0, 0)
@@ -51,11 +53,22 @@ export class PlayerControll extends Component {
         this
       )
     }
+    // 碰到WALL，转向继续走
+    if (this.autoMove) {
+      this.curMoveDir = 1
+      this.collider.on(Contact2DType.BEGIN_CONTACT, this.autoMoveHandler, this)
+    }
+  }
+  autoMoveHandler(player: Collider2D, other: Collider2D) {
+    if (other.group === PHYSICS_GROUP.WALL) {
+      this.curMoveDir *= -1 // 反转移动方向
+    }
   }
   /**
    * 键盘按下：记录移动方向
    */
   private onKeyDown(event: EventKeyboard) {
+    if (this.autoMove) return
     switch (event.keyCode) {
       case 37: // 左
         this.curMoveDir = -1
@@ -72,6 +85,7 @@ export class PlayerControll extends Component {
    * 键盘抬起：重置移动方向（仅当对应按键抬起时）
    */
   private onKeyUp(event: EventKeyboard) {
+    if (this.autoMove) return
     this.allowMove = true
     switch (event.keyCode) {
       case 37: // 左
@@ -106,7 +120,7 @@ export class PlayerControll extends Component {
     if (other.node.name === 'door') {
       this.allowMove = false
     }
-    if (other.tag === PHYSICS_GROUP.ground && !this.isJumpEndTriggered) {
+    if (other.group === PHYSICS_GROUP.GROUND && !this.isJumpEndTriggered) {
       this.isGrounded = true // 标记为在地面上
       this.isHurt = false
       this.isJumpEndTriggered = true
@@ -114,7 +128,7 @@ export class PlayerControll extends Component {
       setTimeout(() => {
         this.isJumpEndTriggered = false
       }, 100)
-    } else if (other.tag === PHYSICS_GROUP.trap) {
+    } else if (other.group === PHYSICS_GROUP.TRAP) {
       this.handleHitTrap(other.node.getComponent(Trap)!)
     }
   }
@@ -124,21 +138,26 @@ export class PlayerControll extends Component {
     // 清除当前速度
     this.rigidBody.linearVelocity = new Vec2(0, 0)
     this.rigidBody.angularVelocity = 0
-    
+
     // 陷阱碰撞器禁用0.1秒
     trapComponent.getComponent(Collider2D)!.enabled = false
     setTimeout(() => {
-    trapComponent.getComponent(Collider2D)!.enabled = true
-        
-    }, 100);
+      trapComponent.getComponent(Collider2D)!.enabled = true
+    }, 100)
     // 施加冲量
-    // this.rigidBody.linearVelocity = trapComponent.force
+    // 先施加向上Y轴冲量，再施加向X轴冲量
     this.rigidBody.applyLinearImpulse(
-      trapComponent.force,
+      new Vec2(0, trapComponent.force.y),
       this.rigidBody.getWorldCenter(this.tempVec2),
       true
     )
-    console.log(`linearVelocity`, this.rigidBody.linearVelocity)
+    setTimeout(() => {
+      this.rigidBody.applyLinearImpulse(
+        new Vec2(trapComponent.force.x, 0),
+        this.rigidBody.getWorldCenter(this.tempVec2),
+        true
+      )
+    }, 16)
   }
 
   /**
