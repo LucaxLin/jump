@@ -66,6 +66,7 @@ export class tiledCollider extends Component {
     const colliderPointsArr: string[] = Array.from(this.colliderPoints).map(
       (item) => item.toString()
     )
+    console.log('开始生成碰撞体')
     const tempPoints = getMaxPolygonVertices(colliderPointsArr)
     const colliderPoints = tempPoints.map(({ x, y }) => {
       return new Vec2(x, y)

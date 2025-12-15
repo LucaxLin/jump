@@ -159,7 +159,7 @@
     "enabledContactListener": true,
     "bullet": true,
     "awakeOnLoad": true,
-    "_group": 1,
+    "_group": 2,
     "_type": 2,
     "_allowSleep": true,
     "_gravityScale": 4,
@@ -269,6 +269,7 @@
     "isFaceRight": true,
     "jumpSpeed": 180,
     "jumpCD": 0.2,
+    "autoMove": false,
     "_id": ""
   },
   {
